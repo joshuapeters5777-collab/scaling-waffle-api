@@ -9,7 +9,7 @@ import productRoutes from './routes/productRoutes.js';
 
 dotenv.config();
 
-const app = express();
+export const app = express();
 const PORT = process.env.PORT || 3000;
 
 // Middleware
@@ -54,6 +54,14 @@ app.use((err, req, res, next) => {
 });
 
 // Start Server
-app.listen(PORT, () => {
-  console.log(`🚀 Server running on http://localhost:${PORT}`);
-});
+export const startServer = () => {
+  return app.listen(PORT, () => {
+    console.log(`🚀 Server running on http://localhost:${PORT}`);
+  });
+};
+
+if (process.env.NODE_ENV !== 'test') {
+  startServer();
+}
+
+export default app;
