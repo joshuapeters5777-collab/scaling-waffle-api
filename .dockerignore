@@ -1,0 +1,8 @@
+node_modules
+scaling-waffle-API/node_modules
+scaling-waffle-API/.git
+npm-debug.log
+.env
+.git
+.dockerignore
+Dockerfile
