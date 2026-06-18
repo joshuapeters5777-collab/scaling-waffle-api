@@ -1,16 +1,20 @@
+// 1. Load environment variables FIRST before any other local imports evaluate
+import 'dotenv/config'; 
+
 import express from 'express';
 import cors from 'cors';
 import morgan from 'morgan';
 import rateLimit from 'express-rate-limit';
-import dotenv from 'dotenv';
 import { env } from './env.js'; // Your validated Zod variables
 import logger, { stream as loggerStream } from './config/logger.js';
 import productRoutes from './routes/productRoutes.js';
 
-dotenv.config();
-
 export const app = express();
 const PORT = env.PORT ? Number(env.PORT) : 3000;
+
+// IMPORTANT: If you are running behind a proxy/load balancer (Heroku, AWS, Nginx, etc.),
+// this is required for the Rate Limiter to accurately identify user IPs instead of the proxy IP.
+app.set('trust proxy', 1);
 
 // =========================================================================
 // 1. SECURITY LAYER: RATE LIMITER CONFIGURATION
@@ -68,6 +72,11 @@ app.use((req, res) => {
 // =========================================================================
 app.use((err, req, res, next) => {
   
+  // Safety check: If headers are already sent, delegate to default Express error handler
+  if (res.headersSent) {
+    return next(err);
+  }
+
   // A. Catch Zod input request/validation errors gracefully
   if (err.name === 'ZodError') {
     logger.warn(`[Zod Input Validation Failure]: ${JSON.stringify(err.errors)}`);
@@ -78,7 +87,7 @@ app.use((err, req, res, next) => {
     });
   }
 
-  // B. Catch malformed JSON payload syntax faults
+  // B. Catch malformed JSON payload syntax faults (Thrown by express.json())
   if (err instanceof SyntaxError && err.status === 400 && 'body' in err) {
     logger.warn(`[Malformed JSON Payload]: ${err.message}`);
     return res.status(400).json({ 
