@@ -2,19 +2,22 @@
   "name": "scaling-waffle-api",
   "version": "1.0.0",
   "type": "module",
+  "main": "index.js",
   "scripts": {
     "start": "node index.js",
     "dev": "nodemon index.js",
-    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js --runInBand --detectOpenHandles"
+    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js"
   },
   "dependencies": {
     "axios": "^1.7.2",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
+    "express-rate-limit": "^6.7.0",
     "jsonwebtoken": "^9.0.2",
     "morgan": "^1.10.0",
-    "winston": "^3.13.0"
+    "winston": "^3.13.0",
+    "zod": "^3.24.0"
   },
   "devDependencies": {
     "jest": "^29.7.0",
