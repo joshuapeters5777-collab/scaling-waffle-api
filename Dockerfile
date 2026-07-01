@@ -2,12 +2,16 @@ FROM node:22-alpine
 
 WORKDIR /app
 
-COPY scaling-waffle-API/package*.json ./
+
+# Copy the package files from your current folder into the container
+COPY package*.json ./
 
 RUN npm install
 
-COPY scaling-waffle-API/ ./
+# Copy all your project files from your current folder into the container
+COPY . .
 
-EXPOSE 3000
+# Expose the correct port matching your index.js config
+EXPOSE 4000
 
-CMD ["npm", "start"]
+CMD ["node", "index.js"]

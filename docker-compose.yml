@@ -6,7 +6,7 @@ services:
       dockerfile: Dockerfile
     image: scaling-waffle-api
     ports:
-      - "3000:3000"
+      - "4000:4000"
     environment:
-      - PORT=3000
+      - PORT=4000
     restart: unless-stopped
