@@ -10,7 +10,7 @@ import logger, { stream as loggerStream } from './config/logger.js';
 import productRoutes from './routes/productRoutes.js';
 
 export const app = express();
-const PORT = env.PORT ? Number(env.PORT) : 3000;
+const PORT = env.PORT ? Number(env.PORT) : 4000;
 
 // IMPORTANT: If you are running behind a proxy/load balancer (Heroku, AWS, Nginx, etc.),
 // this is required for the Rate Limiter to accurately identify user IPs instead of the proxy IP.
@@ -31,9 +31,15 @@ const apiLimiter = rateLimit({
 });
 
 // =========================================================================
-// 2. STANDARD GLOBAL MIDDLEWARE
+// 2. STANDARD GLOBAL MIDDLEWARE & CORS BRIDGE
 // =========================================================================
-app.use(cors());
+// CRUCIAL UI BRIDGE: Custom CORS configuration targeting your frontend origin
+const frontendOrigin = env.FRONTEND_ORIGIN;
+app.use(cors({
+  origin: frontendOrigin,
+  credentials: true                // For secure cookies/auth sessions later
+}));
+
 app.use(express.json());
 
 // Pass requests through your custom Winston stream configuration
@@ -54,8 +60,8 @@ app.get('/', (req, res) => {
   });
 });
 
-// Main Product Resource Route
-app.use('/api/products', productRoutes);
+// Mount your clean asynchronous product router tracks
+app.use('/api', productRoutes);
 
 // =========================================================================
 // 4. FALLBACK 404 ROUTE HANDLER (Catches invalid URLs)
@@ -98,9 +104,9 @@ app.use((err, req, res, next) => {
 
   // C. Fallback for unhandled critical system exceptions
   logger.error(`[Unhandled System Exception]: ${err.stack || err}`);
-  res.status(500).json({
+  res.status(err.status || 500).json({
     status: 'error',
-    message: 'Internal Server Error. Please try again later.'
+    message: err.message || 'Internal Server Error. Please try again later.'
   });
 });
 
